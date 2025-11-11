@@ -364,8 +364,11 @@ def plot_nowcast_plotly(joint_df, output_path="./nowcast_outputs/nowcast_plot.ht
             )
 
     # --- Layout & styling ---
-    fig.update_layout(
-        title="University of Michigan CSI vs Social Media CSI",
+       fig.update_layout(
+        title=dict(
+            text="University of Michigan CSI vs Social Media CSI",
+            font=dict(color="#FAFAFA", size=18)
+        ),
         xaxis_title="Date",
         yaxis_title="CSI",
         template="plotly_dark",
@@ -395,15 +398,10 @@ def plot_nowcast_plotly(joint_df, output_path="./nowcast_outputs/nowcast_plot.ht
             x=0.5,
             font=dict(color="#FAFAFA")
         ),
-        titlefont=dict(color="#FAFAFA"),
         paper_bgcolor="#0E1117",
         plot_bgcolor="#0E1117"
     )
-
-    # --- Save interactive HTML plot ---
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    fig.write_html(output_path, include_plotlyjs="cdn")
-    return output_path
+    
 
 
 # === High-Level Run Function for Streamlit ===
@@ -423,3 +421,4 @@ def run_mcsi_model(filtered_path, selected_topics):
     )
     print("✅ Model run complete.")
     return artifacts
+
