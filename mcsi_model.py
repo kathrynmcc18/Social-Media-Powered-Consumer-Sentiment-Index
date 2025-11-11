@@ -328,7 +328,7 @@ class CSINowcaster:
 def plot_nowcast_plotly(joint_df, output_path=None):
     """
     Creates and saves the interactive Plotly chart comparing
-    the University of Michigan CSI vs the Social Media CSI (fitted).
+    the University of Michigan CSI vs the Social Media Powered CSI (fitted).
     Uses a temporary directory when deployed to Streamlit Cloud.
     """
     # --- Ensure output path is safe and writable ---
@@ -360,7 +360,7 @@ def plot_nowcast_plotly(joint_df, output_path=None):
     # --- Layout & styling ---
     fig.update_layout(
         title=dict(
-            text="University of Michigan CSI vs Social Media CSI",
+            text="University of Michigan CSI vs. Social Media Powered CSI",
             font=dict(color="#FAFAFA", size=20),
             x=0.5
         ),
@@ -424,6 +424,7 @@ def run_mcsi_model(filtered_path, selected_topics):
     )
     print("✅ Model run complete.")
     return artifacts
+
 
 
 
