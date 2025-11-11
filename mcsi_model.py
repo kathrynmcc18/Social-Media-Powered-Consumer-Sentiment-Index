@@ -110,8 +110,8 @@ def load_michigan_from_pdf_table_2024_2025() -> pd.DataFrame:
         ("July",      "2025-07-31", 61.7),
         ("August",    "2025-08-31", 58.2),
         ("September", "2025-09-30", 55.1),
-        ("October", "2025-09-30", 53.6),
-        ("October", "2025-09-30", 50.3),
+        ("October", "2025-10-31", 53.6),
+        ("November", "2025-11-28", 50.3),
 
     ]
     df = pd.DataFrame(data, columns=["month","period_end","csi"])
@@ -424,6 +424,7 @@ def run_mcsi_model(filtered_path, selected_topics):
     )
     print("✅ Model run complete.")
     return artifacts
+
 
 
 
