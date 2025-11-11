@@ -234,8 +234,6 @@ if st.button("🚀 Run Social Media Sentiment Model"):
         st.subheader("📈 Monthly Nowcast (Social Medial CSI vs. UMich CSI)")
         st.dataframe(artifacts["window_join"].head(20), use_container_width=True)
 
-        st.subheader("🕒 Real-time Nowcast")
-        st.dataframe(artifacts["realtime"] if "realtime" in artifacts else pd.DataFrame(), use_container_width=True)
 
         plot_path = artifacts.get("plot_path")
         if plot_path and os.path.exists(plot_path):
@@ -253,3 +251,4 @@ if st.button("🚀 Run Social Media Sentiment Model"):
         progress_bar.empty()
         status_placeholder.empty()
         st.error(f"❌ Error running the model: {e}")
+
