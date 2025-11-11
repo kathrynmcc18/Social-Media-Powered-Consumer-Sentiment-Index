@@ -161,11 +161,11 @@ st.header("Step 3: Run the Social Media Powered Consumer Sentiment Index Model")
 st.markdown("""
 Click below to run the **Social Media Powered Consumer Sentiment Index (SMPCSI)** model.  
 This will:
-- Load a sentiment model (HuggingFace or VADER)
+- Load a sentiment model (HuggingFace CardiffNLP Twitter RoBERTa Sentiment Model or VADER)
 - Score all posts
 - Aggregate daily sentiment
 - Fit the regression vs University of Michigan CSI
-- Produce a nowcast plot and real-time prediction
+- Produce a comparison plot between University of Michigan CSI and Social Media Powered CSI
 """)
 
 if st.button("🚀 Run Social Media Sentiment Model"):
@@ -231,13 +231,13 @@ if st.button("🚀 Run Social Media Sentiment Model"):
         st.subheader("📅 Daily Social Sentiment Index")
         st.dataframe(artifacts["daily"].head(20), use_container_width=True)
 
-        st.subheader("📈 Monthly Nowcast (Social Medial CSI vs. UMich CSI)")
+        st.subheader("📈 Monthly Nowcast (Social Media Powered CSI vs. UMich CSI)")
         st.dataframe(artifacts["window_join"].head(20), use_container_width=True)
 
 
         plot_path = artifacts.get("plot_path")
         if plot_path and os.path.exists(plot_path):
-            st.subheader("📈 Interactive Nowcast Plot")
+            st.subheader("📈 Interactive Comparison Plot - MCSI vs. SMPCSI")
             with open(plot_path, "r", encoding="utf-8") as f:
                 html = f.read()
             st.components.v1.html(html, height=600, scrolling=True)
@@ -251,4 +251,5 @@ if st.button("🚀 Run Social Media Sentiment Model"):
         progress_bar.empty()
         status_placeholder.empty()
         st.error(f"❌ Error running the model: {e}")
+
 
