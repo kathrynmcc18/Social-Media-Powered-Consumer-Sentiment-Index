@@ -364,44 +364,43 @@ def plot_nowcast_plotly(joint_df, output_path="./nowcast_outputs/nowcast_plot.ht
             )
 
     # --- Layout & styling ---
-       fig.update_layout(
-        title=dict(
-            text="University of Michigan CSI vs Social Media CSI",
-            font=dict(color="#FAFAFA", size=18)
+    fig.update_layout(
+    title=dict(
+        text="University of Michigan CSI vs Social Media CSI",
+        font=dict(color="#FAFAFA", size=18)
+    ),
+    xaxis_title="Date",
+    yaxis_title="CSI",
+    template="plotly_dark",
+    hovermode="x unified",
+    xaxis=dict(
+        rangeselector=dict(
+            buttons=[
+                dict(count=3, label="3M", step="month", stepmode="backward"),
+                dict(count=6, label="6M", step="month", stepmode="backward"),
+                dict(step="all")
+            ]
         ),
-        xaxis_title="Date",
-        yaxis_title="CSI",
-        template="plotly_dark",
-        hovermode="x unified",
-        xaxis=dict(
-            rangeselector=dict(
-                buttons=[
-                    dict(count=3, label="3M", step="month", stepmode="backward"),
-                    dict(count=6, label="6M", step="month", stepmode="backward"),
-                    dict(step="all")
-                ]
-            ),
-            rangeslider=dict(
-                visible=True,
-                bgcolor="rgba(40,40,40,0.7)",
-                thickness=0.08
-            ),
-            type="date"
+        rangeslider=dict(
+            visible=True,
+            bgcolor="rgba(40,40,40,0.7)",
+            thickness=0.08
         ),
-        autosize=True,
-        height=550,
-        legend=dict(
-            orientation="h",
-            yanchor="bottom",
-            y=1.02,
-            xanchor="center",
-            x=0.5,
-            font=dict(color="#FAFAFA")
-        ),
-        paper_bgcolor="#0E1117",
-        plot_bgcolor="#0E1117"
-    )
-    
+        type="date"
+    ),
+    autosize=True,
+    height=550,
+    legend=dict(
+        orientation="h",
+        yanchor="bottom",
+        y=1.02,
+        xanchor="center",
+        x=0.5,
+        font=dict(color="#FAFAFA")
+    ),
+    paper_bgcolor="#0E1117",
+    plot_bgcolor="#0E1117"
+)
 
 
 # === High-Level Run Function for Streamlit ===
@@ -421,4 +420,5 @@ def run_mcsi_model(filtered_path, selected_topics):
     )
     print("✅ Model run complete.")
     return artifacts
+
 
