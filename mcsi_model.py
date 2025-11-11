@@ -298,32 +298,35 @@ class CSINowcaster:
         scored = self.score_social(social_df)
         daily = self.daily_index(scored)
         windows_agg = self.aggregate_by_umich_window(daily,)
-
+    
         if isinstance(michigan_path_or_df, pd.DataFrame):
             mich = michigan_path_or_df.copy()
         else:
             mich = pd.read_csv(michigan_path_or_df)
-
+    
+        # --- Merge and fit model ---
         joint = windows_agg.merge(mich[["month","csi"]], on="month", how="inner")
         joint = joint.rename(columns={"csi": "MCSI"})  # ✅ Rename official CSI
         X, y = joint[["social_window_index"]].values, joint["MCSI"].values
         self.reg.fit(X, y)
-        joint["SMPCSI"] = self.reg.predict(X)  # ✅ Rename predicted values
-
+        joint["SMPCSI"] = self.reg.predict(X)  # ✅ Model predictions renamed
+    
+        # --- Save outputs ---
         html_path = os.path.join(self.cfg.outdir, "nowcast_plot.html")
         if save_outputs:
             os.makedirs(self.cfg.outdir, exist_ok=True)
             daily.to_csv(os.path.join(self.cfg.outdir, "daily_social_index.csv"), index=False)
-            joint.assign(predicted_csi=yhat).to_csv(
-                os.path.join(self.cfg.outdir, "window_nowcast.csv"), index=False
-            )
-            plot_nowcast_plotly(joint.assign(predicted_csi=yhat), html_path)
-
+            joint.to_csv(os.path.join(self.cfg.outdir, "window_nowcast.csv"), index=False)
+            plot_nowcast_plotly(joint, html_path)
+    
+        # --- Return artifacts ---
         out = {
-            "metrics": {"mae": float(mean_absolute_error(y, yhat)),
-                        "r2": float(r2_score(y, yhat))},
+            "metrics": {
+                "mae": float(mean_absolute_error(y, joint["SMPCSI"])),
+                "r2": float(r2_score(y, joint["SMPCSI"]))
+            },
             "daily": daily,
-            "window_join": joint.assign(predicted_csi=yhat),
+            "window_join": joint,
             "plot_path": html_path
         }
         return out
@@ -429,6 +432,7 @@ def run_mcsi_model(filtered_path, selected_topics):
     )
     print("✅ Model run complete.")
     return artifacts
+
 
 
 
