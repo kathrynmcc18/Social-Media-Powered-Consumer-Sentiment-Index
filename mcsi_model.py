@@ -10,6 +10,8 @@ import warnings, os, re
 import numpy as np
 import pandas as pd
 import plotly.graph_objects as go
+import tempfile
+
 
 try:
     from transformers import pipeline
@@ -323,7 +325,18 @@ class CSINowcaster:
 
 
 # === Plotly Visualization ===
-def plot_nowcast_plotly(joint_df, output_path="./nowcast_outputs/nowcast_plot.html"):
+def plot_nowcast_plotly(joint_df, output_path=None):
+    """
+    Creates and saves the interactive Plotly chart comparing
+    the University of Michigan CSI vs the Social Media CSI (fitted).
+    Uses a temporary directory when deployed to Streamlit Cloud.
+    """
+    # --- Ensure output path is safe and writable ---
+    if output_path is None:
+        tmpdir = tempfile.gettempdir()        # ✅ portable, writable directory
+        output_path = os.path.join(tmpdir, "nowcast_plot.html")
+
+    # --- Create Plotly Figure ---
     fig = go.Figure()
 
     # --- Official Michigan CSI ---
@@ -344,63 +357,54 @@ def plot_nowcast_plotly(joint_df, output_path="./nowcast_outputs/nowcast_plot.ht
         line=dict(color="#ff7f0e", width=2)
     ))
 
-    # --- Dynamically determine the last available official CSI date ---
-    valid_csi = joint_df.dropna(subset=["csi"])
-    if not valid_csi.empty:
-        last_real_date = pd.to_datetime(valid_csi["final_end"].max())
-        start_projection = last_real_date + pd.Timedelta(days=1)
-        end_projection = pd.to_datetime(joint_df["final_end"].max())
-
-        # Only add shaded region if there are later prediction months
-        if end_projection > start_projection:
-            fig.add_vrect(
-                x0=start_projection, x1=end_projection,
-                fillcolor="rgba(255, 165, 0, 0.15)",  # light orange shade
-                layer="below", line_width=0,
-                annotation_text="Nowcast Projection",
-                annotation_position="top left",
-                annotation_font_size=12,
-                annotation_font_color="#ff7f0e"
-            )
-
     # --- Layout & styling ---
     fig.update_layout(
-    title=dict(
-        text="University of Michigan CSI vs Social Media CSI",
-        font=dict(color="#FAFAFA", size=18)
-    ),
-    xaxis_title="Date",
-    yaxis_title="CSI",
-    template="plotly_dark",
-    hovermode="x unified",
-    xaxis=dict(
-        rangeselector=dict(
-            buttons=[
-                dict(count=3, label="3M", step="month", stepmode="backward"),
-                dict(count=6, label="6M", step="month", stepmode="backward"),
-                dict(step="all")
-            ]
+        title=dict(
+            text="University of Michigan CSI vs Social Media CSI",
+            font=dict(color="#FAFAFA", size=20),
+            x=0.5
         ),
-        rangeslider=dict(
-            visible=True,
-            bgcolor="rgba(40,40,40,0.7)",
-            thickness=0.08
+        xaxis_title="Date",
+        yaxis_title="CSI",
+        template="plotly_dark",  # 🌑 dark mode
+        hovermode="x unified",
+        xaxis=dict(
+            rangeselector=dict(
+                buttons=[
+                    dict(count=3, label="3M", step="month", stepmode="backward"),
+                    dict(count=6, label="6M", step="month", stepmode="backward"),
+                    dict(step="all")
+                ]
+            ),
+            rangeslider=dict(
+                visible=True,
+                bgcolor="rgba(40,40,40,0.7)",
+                thickness=0.08
+            ),
+            type="date"
         ),
-        type="date"
-    ),
-    autosize=True,
-    height=550,
-    legend=dict(
-        orientation="h",
-        yanchor="bottom",
-        y=1.02,
-        xanchor="center",
-        x=0.5,
-        font=dict(color="#FAFAFA")
-    ),
-    paper_bgcolor="#0E1117",
-    plot_bgcolor="#0E1117"
-)
+        autosize=True,
+        height=550,
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="center",
+            x=0.5,
+            font=dict(color="#FAFAFA")
+        ),
+        paper_bgcolor="#0E1117",
+        plot_bgcolor="#0E1117"
+    )
+
+    # --- Ensure directory exists ---
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    # --- Save interactive HTML plot ---
+    fig.write_html(output_path, include_plotlyjs="cdn")
+
+    print(f"✅ Plot successfully saved at: {output_path}")
+    return output_path
 
 
 # === High-Level Run Function for Streamlit ===
@@ -420,5 +424,6 @@ def run_mcsi_model(filtered_path, selected_topics):
     )
     print("✅ Model run complete.")
     return artifacts
+
 
 
