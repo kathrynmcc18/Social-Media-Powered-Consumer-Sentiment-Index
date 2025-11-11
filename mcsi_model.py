@@ -305,9 +305,10 @@ class CSINowcaster:
             mich = pd.read_csv(michigan_path_or_df)
 
         joint = windows_agg.merge(mich[["month","csi"]], on="month", how="inner")
-        X, y = joint[["social_window_index"]].values, joint["csi"].values
+        joint = joint.rename(columns={"csi": "MCSI"})  # ✅ Rename official CSI
+        X, y = joint[["social_window_index"]].values, joint["MCSI"].values
         self.reg.fit(X, y)
-        yhat = self.reg.predict(X)
+        joint["SMPCSI"] = self.reg.predict(X)  # ✅ Rename predicted values
 
         html_path = os.path.join(self.cfg.outdir, "nowcast_plot.html")
         if save_outputs:
@@ -346,7 +347,7 @@ def plot_nowcast_plotly(joint_df, output_path=None):
     # --- Official Michigan CSI ---
     fig.add_trace(go.Scatter(
         x=pd.to_datetime(joint_df["final_end"]),
-        y=joint_df["csi"],
+        y=joint_df["MCSI"],
         mode="lines+markers",
         name="UMich CSI (official)",
         line=dict(color="#1f77b4", width=2)
@@ -355,7 +356,7 @@ def plot_nowcast_plotly(joint_df, output_path=None):
     # --- Social Media CSI (fitted) ---
     fig.add_trace(go.Scatter(
         x=pd.to_datetime(joint_df["final_end"]),
-        y=joint_df["predicted_csi"],
+        y=joint_df["SMPCSI"],
         mode="lines+markers",
         name="Social Media CSI (fitted)",
         line=dict(color="#ff7f0e", width=2)
@@ -428,6 +429,7 @@ def run_mcsi_model(filtered_path, selected_topics):
     )
     print("✅ Model run complete.")
     return artifacts
+
 
 
 
